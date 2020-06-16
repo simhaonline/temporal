@@ -7,15 +7,8 @@ services:
       POSTGRES_PASSWORD: temporal
     ports:
       - "5432:5432"
-  statsd:
-    image: graphiteapp/graphite-statsd
-    ports:
-      - "8080:80"
-      - "2003:2003"
-      - "8125:8125"
-      - "8126:8126"
   temporal:
-    image: temporalio/auto-setup:0.23.1
+    image: temporalio/server:0.23.1
     ports:
      - "7233:7233"
     environment:
@@ -23,16 +16,15 @@ services:
       - "DB_PORT=5432"
       - "POSTGRES_USER=temporal"
       - "POSTGRES_PWD=temporal"
-      - "POSTGRES_SEEDS=postgres"
-      - "STATSD_ENDPOINT=statsd:8125"
+      - "POSTGRES_SEEDS=postgreschicken"
       - "DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml"
     depends_on:
       - postgres
-  temporal-web:
-    image: temporalio/web:0.23.2
+  temporal-admin-tools:
+    image: markmark206/admin-tools:9f73a263908bc8fa7ea020c4458b9a0135be0d50
+    stdin_open: true
+    tty: true
     environment:
-      - "TEMPORAL_GRPC_ENDPOINT=temporal:7233"
-    ports:
-      - "8088:8088"
+      - "TEMPORAL_CLI_ADDRESS=temporal:7233"
     depends_on:
       - temporal
